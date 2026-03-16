@@ -3,10 +3,10 @@ name = "pandas-exercises"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "dateparser>=1.2.2",
-    "marimo>=0.20.2",
+    "marimo>=0.20.4",
     "numpy>=2.3.5",
     "pandas>=3.0.1",
     "pandas-stubs>=3.0.0.260204",

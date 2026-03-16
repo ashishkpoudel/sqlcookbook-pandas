@@ -59,7 +59,6 @@ def _(employee_df, pd):
     _employee_df["row_number"] = _employee_df.sort_values("ename")["ename"].rank(method="first").astype(pd.Int64Dtype())
     _employee_df.loc[_employee_df["row_number"] % 2 == 1, ["row_number", "ename", "sal"]]
 
-
     return
 
 
@@ -111,7 +110,6 @@ def _(department_df, employee_df):
     )
 
     _result_df
-
     return
 
 
@@ -137,7 +135,6 @@ def _(pd):
     )[["test1_v1", "test2_v2"]]
 
     _reciprocals.drop_duplicates()
-
     return
 
 
@@ -190,12 +187,122 @@ def _(employee_df):
 
 
 @app.cell
-def _():
+def _(employee_df):
     """
     You want to return each employee’s name and salary along with the next highest and
     lowest salaries. If there are no higher or lower salaries, you want the results to wrap
     (first SAL shows last SAL and vice versa).
     """
+    _employee_df = employee_df.copy()
+
+    min_sal = _employee_df["sal"].min()
+    max_sal = _employee_df["sal"].max()
+
+    # lead over
+    _employee_df["highest_sal"] = _employee_df.sort_values("sal")["sal"].shift(-1).fillna(min_sal)
+
+    # lag over
+    _employee_df["lowest_sal"] = _employee_df.sort_values("sal")["sal"].shift(1).fillna(max_sal)
+
+    _employee_df.loc[:, ["empno", "ename", "sal", "highest_sal", "lowest_sal"]].sort_values("sal")
+    return
+
+
+@app.cell
+def _(employee_df):
+    """
+    You want to rank the salaries in table EMP while allowing for ties
+    """
+
+    _employee_df = employee_df.copy()
+
+    # dense_rank() over(order by sal)
+
+    _employee_df["rank"] = employee_df.sort_values("sal")["sal"].rank(method="dense")
+
+    _employee_df.loc[:, ["empno", "ename", "rank", "sal"]].sort_values("rank")
+    return
+
+
+@app.cell
+def _(employee_df):
+    """
+    You want to find the different job types in table EMP but do not want to see dupli‐
+    cates
+    """
+
+    _employee_df = employee_df.copy()
+
+    _employee_df.drop_duplicates(subset=["job"])["job"]
+    return
+
+
+@app.cell
+def _(employee_df):
+    """
+    You want return a result set that contains each employee’s name, the department they
+    work in, their salary, the date they were hired, and the salary of the last employee
+    hired, in each department.
+    """
+
+    _employee_df = employee_df.copy()
+
+    _employee_df["max_sal_in_dept"] = _employee_df.groupby("deptno")["sal"].transform('max')
+
+    _employee_df.loc[:, ["empno", "ename", "sal", "deptno", "max_sal_in_dept"]]
+
+    return
+
+
+@app.cell
+def _(pd):
+    """ 
+    TODO
+
+    11.12 Generating Simple Forecasts
+
+    Based on current data, you want to return additional rows and columns representing
+    future actions. For example, consider the following result set:
+
+    ID ORDER_DATE PROCESS_DATE
+    -- ----------- ------------
+    1 25-SEP-2005 27-SEP-2005
+    2 26-SEP-2005 28-SEP-2005
+    3 27-SEP-2005 29-SEP-2005
+
+    You want to return three rows per row returned in your result set (each row plus two
+    additional rows for each order). Along with the extra rows, you would like to return
+    two additional columns providing dates for expected order processing.
+    From the previous result set, you can see that an order takes two days to process. For
+    the purposes of this example, let’s say the next step after processing is verification,
+    and the last step is shipment. Verification occurs one day after processing, and ship‐
+    ment occurs one day after verification. You want to return a result set expressing the
+    whole procedure. Ultimately you want to transform the previous result set to the fol‐
+    lowing result set:
+
+    ID ORDER_DATE PROCESS_DATE VERIFIED SHIPPED
+    -- ----------- ------------ ----------- -----------
+    1 25-SEP-2005 27-SEP-2005
+    1 25-SEP-2005 27-SEP-2005 28-SEP-2005
+    1 25-SEP-2005 27-SEP-2005 28-SEP-2005 29-SEP-2005
+    2 26-SEP-2005 28-SEP-2005
+    2 26-SEP-2005 28-SEP-2005 29-SEP-2005
+    2 26-SEP-2005 28-SEP-2005 29-SEP-2005 30-SEP-2005
+    3 27-SEP-2005 29-SEP-2005
+    3 27-SEP-2005 29-SEP-2005 30-SEP-2005
+    3 27-SEP-2005 29-SEP-2005 30-SEP-2005 01-OCT-2005
+    """
+
+    _df = pd.DataFrame({
+        'id': [1, 2, 3],
+        'order_date': ['25-SEP-2005', '26-SEP-2005', '27-SEP-2005'],
+        'process_date': ['27-SEP-2005', '28-SEP-2005', '29-SEP-2005']
+    })
+
+    _df["id"].astype(pd.Int64Dtype())
+    _df["order_date"].astype("datetime64[ns]")
+    _df["process_date"].astype("datetime64[ns]")
+
 
     return
 
